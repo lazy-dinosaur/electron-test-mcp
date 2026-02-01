@@ -1,27 +1,51 @@
-# electron-test-mcp
+# Electron Test MCP
 
-MCP (Model Context Protocol) server for testing Electron applications using Playwright.
+[![npm version](https://img.shields.io/npm/v/electron-test-mcp.svg)](https://www.npmjs.com/package/electron-test-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/electron-test-mcp.svg)](https://www.npmjs.com/package/electron-test-mcp)
+[![GitHub stars](https://img.shields.io/github/stars/lazy-dinosaur/electron-test-mcp.svg)](https://github.com/lazy-dinosaur/electron-test-mcp/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[한국어 버전 (Korean)](README.ko.md)
+
+MCP (Model Context Protocol) server for testing Electron applications using Playwright. Enables AI models like Claude to interact with and test your Electron apps.
+
+## 🚀 Quick Start
+
+```bash
+# Run directly with npx
+npx electron-test-mcp
+
+# Or install globally
+npm install -g electron-test-mcp
+electron-test-mcp
+```
 
 ## Features
 
-- **Two connection modes:**
+- **Two Connection Modes**
   - **CDP Mode**: Connect to a running Electron app via Chrome DevTools Protocol
   - **Launch Mode**: Launch a fresh Electron app instance for testing
 - **Full Playwright API**: screenshot, click, fill, type, hover, press, wait, evaluate, and more
-- **Accessibility snapshots**: Get the accessibility tree for element discovery
-- **Main process access**: Execute code in Electron's main process (launch mode only)
+- **Accessibility Snapshots**: Get the accessibility tree for element discovery
+- **Main Process Access**: Execute code in Electron's main process (launch mode only)
 
-## Installation
+## How It Works
 
-```bash
-npm install -g electron-test-mcp
-# or
-npx electron-test-mcp
+```
+User <--> AI Model (Claude) <--> MCP Protocol <--> electron-test-mcp <--> Electron App
 ```
 
-## Usage with Claude Desktop / MCP Clients
+1. **User**: "Click the login button and fill in the email field"
+2. **AI Model**: Determines which MCP tools to use
+3. **MCP Protocol**: Standardized communication
+4. **electron-test-mcp**: Executes Playwright commands on the Electron app
+5. **Electron App**: Actions are performed in the actual application
 
-Add to your MCP configuration:
+## Configuration
+
+### Claude Desktop / MCP Clients
+
+Add to your MCP configuration file:
 
 ```json
 {
@@ -29,6 +53,20 @@ Add to your MCP configuration:
     "electron-test": {
       "command": "npx",
       "args": ["electron-test-mcp"]
+    }
+  }
+}
+```
+
+### OpenCode
+
+```json
+{
+  "mcp": {
+    "electron-test": {
+      "type": "local",
+      "command": ["npx", "electron-test-mcp"],
+      "enabled": true
     }
   }
 }
@@ -54,7 +92,7 @@ Then use the `connect` tool:
 connect({ port: 9222 })
 ```
 
-**Pros:**
+**Advantages:**
 
 - Works with your existing dev workflow
 - App state preserved between tests
@@ -68,7 +106,7 @@ Launch a fresh Electron app instance:
 launch({ appPath: "./out/main/index.js" })
 ```
 
-**Pros:**
+**Advantages:**
 
 - Clean state for each test
 - Access to main process via `evaluateMain`
@@ -137,7 +175,7 @@ role=button[name="Submit"]
 .form >> text=Submit
 ```
 
-## Examples
+## Usage Examples
 
 ### Basic Test Flow
 
@@ -166,6 +204,18 @@ evaluateMain({
 });
 ```
 
+### With AI Assistant
+
+You can ask Claude or other AI assistants to test your Electron app:
+
+```
+Connect to my Electron app running on port 9222 and:
+1. Take a screenshot of the current state
+2. Click the "Settings" button in the sidebar
+3. Change the theme to dark mode
+4. Verify the theme changed by checking the background color
+```
+
 ## Tips for Testable Electron Apps
 
 1. **Add `data-testid` attributes** to important elements
@@ -173,6 +223,31 @@ evaluateMain({
 3. **Use semantic HTML** for better accessibility snapshots
 4. **Keep selectors stable** - prefer `data-testid` over classes
 
-## License
+## Development
 
-MIT
+```bash
+# Clone repository
+git clone https://github.com/lazy-dinosaur/electron-test-mcp.git
+cd electron-test-mcp
+
+# Install dependencies
+npm install
+
+# Build
+npm run build
+
+# Run locally
+node dist/index.js
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+Distributed under the MIT License. See LICENSE file for more information.
+
+## ❤️ Support
+
+If you find this project useful, please consider giving it a ⭐️ on GitHub!
