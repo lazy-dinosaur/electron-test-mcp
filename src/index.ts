@@ -640,8 +640,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         const script = args?.script as string;
         const result = await page.evaluate(script);
+        const resultText =
+          result === undefined ? "undefined" : JSON.stringify(result, null, 2);
         return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          content: [{ type: "text", text: resultText }],
         };
       }
 
@@ -666,8 +668,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const script = args?.script as string;
         const fn = new Function("electron", `return (${script})(electron)`);
         const result = await electronApp.evaluate(fn as any);
+        const resultText =
+          result === undefined ? "undefined" : JSON.stringify(result, null, 2);
         return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          content: [{ type: "text", text: resultText }],
         };
       }
 
