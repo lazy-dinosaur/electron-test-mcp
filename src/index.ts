@@ -289,6 +289,59 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ["selector"],
       },
     },
+    {
+      name: "scroll",
+      description: "Scroll the page using mouse wheel",
+      inputSchema: {
+        type: "object",
+        properties: {
+          deltaX: {
+            type: "number",
+            description: "Horizontal scroll amount (positive = right, negative = left)",
+          },
+          deltaY: {
+            type: "number",
+            description: "Vertical scroll amount (positive = down, negative = up)",
+          },
+        },
+      },
+    },
+    {
+      name: "scrollTo",
+      description: "Scroll to absolute position on the page",
+      inputSchema: {
+        type: "object",
+        properties: {
+          x: {
+            type: "number",
+            description: "Horizontal position in pixels (default: 0)",
+          },
+          y: {
+            type: "number",
+            description: "Vertical position in pixels (default: 0)",
+          },
+          behavior: {
+            type: "string",
+            enum: ["auto", "smooth"],
+            description: "Scroll behavior (default: auto)",
+          },
+        },
+      },
+    },
+    {
+      name: "scrollIntoView",
+      description: "Scroll element into view",
+      inputSchema: {
+        type: "object",
+        properties: {
+          selector: {
+            type: "string",
+            description: "CSS selector for the element to scroll into view",
+          },
+        },
+        required: ["selector"],
+      },
+    },
   ],
 }));
 
@@ -705,6 +758,72 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const selector = args?.selector as string;
         const count = await page.locator(selector).count();
         return { content: [{ type: "text", text: String(count) }] };
+      }
+
+      case "scroll": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const deltaX = (args?.deltaX as number) || 0;
+        const deltaY = (args?.deltaY as number) || 0;
+        await page.mouse.wheel(deltaX, deltaY);
+        return {
+          content: [
+            { type: "text", text: `Scrolled by (${deltaX}, ${deltaY})` },
+          ],
+        };
+      }
+
+      case "scrollTo": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const x = (args?.x as number) || 0;
+        const y = (args?.y as number) || 0;
+        const behavior = (args?.behavior as "auto" | "smooth") || "auto";
+        await page.evaluate(
+          ({ x, y, behavior }) => window.scrollTo({ left: x, top: y, behavior }),
+          { x, y, behavior },
+        );
+        return {
+          content: [
+            { type: "text", text: `Scrolled to position (${x}, ${y})` },
+          ],
+        };
+      }
+
+      case "scrollIntoView": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const selector = args?.selector as string;
+        await page.locator(selector).scrollIntoViewIfNeeded();
+        return {
+          content: [
+            { type: "text", text: `Scrolled ${selector} into view` },
+          ],
+        };
       }
 
       default:
