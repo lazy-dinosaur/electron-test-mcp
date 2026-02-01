@@ -1,6 +1,6 @@
 {
   "name": "electron-test-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for testing Electron apps via Playwright - supports both CDP connection and direct launch",
   "author": "lazydino",
   "license": "MIT",
