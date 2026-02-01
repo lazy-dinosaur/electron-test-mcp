@@ -342,6 +342,82 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ["selector"],
       },
     },
+    {
+      name: "mouseMove",
+      description: "Move mouse cursor to specific coordinates",
+      inputSchema: {
+        type: "object",
+        properties: {
+          x: { type: "number", description: "X coordinate" },
+          y: { type: "number", description: "Y coordinate" },
+          steps: {
+            type: "number",
+            description: "Number of intermediate steps for smooth movement (default: 1)",
+          },
+        },
+        required: ["x", "y"],
+      },
+    },
+    {
+      name: "mouseDown",
+      description: "Press mouse button down",
+      inputSchema: {
+        type: "object",
+        properties: {
+          button: {
+            type: "string",
+            enum: ["left", "right", "middle"],
+            description: "Mouse button (default: left)",
+          },
+        },
+      },
+    },
+    {
+      name: "mouseUp",
+      description: "Release mouse button",
+      inputSchema: {
+        type: "object",
+        properties: {
+          button: {
+            type: "string",
+            enum: ["left", "right", "middle"],
+            description: "Mouse button (default: left)",
+          },
+        },
+      },
+    },
+    {
+      name: "mouseClick",
+      description: "Click at specific coordinates (without selector)",
+      inputSchema: {
+        type: "object",
+        properties: {
+          x: { type: "number", description: "X coordinate" },
+          y: { type: "number", description: "Y coordinate" },
+          button: {
+            type: "string",
+            enum: ["left", "right", "middle"],
+            description: "Mouse button (default: left)",
+          },
+          clickCount: {
+            type: "number",
+            description: "Number of clicks (default: 1, use 2 for double-click)",
+          },
+        },
+        required: ["x", "y"],
+      },
+    },
+    {
+      name: "dblclick",
+      description: "Double-click an element",
+      inputSchema: {
+        type: "object",
+        properties: {
+          selector: { type: "string", description: "CSS selector" },
+        },
+        required: ["selector"],
+      },
+    },
   ],
 }));
 
@@ -827,6 +903,106 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             { type: "text", text: `Scrolled ${selector} into view` },
           ],
+        };
+      }
+
+      case "mouseMove": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const x = args?.x as number;
+        const y = args?.y as number;
+        const steps = (args?.steps as number) || 1;
+        await page.mouse.move(x, y, { steps });
+        return {
+          content: [{ type: "text", text: `Mouse moved to (${x}, ${y})` }],
+        };
+      }
+
+      case "mouseDown": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const button =
+          (args?.button as "left" | "right" | "middle") || "left";
+        await page.mouse.down({ button });
+        return {
+          content: [{ type: "text", text: `Mouse ${button} button pressed` }],
+        };
+      }
+
+      case "mouseUp": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const button =
+          (args?.button as "left" | "right" | "middle") || "left";
+        await page.mouse.up({ button });
+        return {
+          content: [{ type: "text", text: `Mouse ${button} button released` }],
+        };
+      }
+
+      case "mouseClick": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const x = args?.x as number;
+        const y = args?.y as number;
+        const button =
+          (args?.button as "left" | "right" | "middle") || "left";
+        const clickCount = (args?.clickCount as number) || 1;
+        await page.mouse.click(x, y, { button, clickCount });
+        return {
+          content: [
+            { type: "text", text: `Mouse clicked at (${x}, ${y})` },
+          ],
+        };
+      }
+
+      case "dblclick": {
+        if (!page)
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Not connected. Call connect or launch first.",
+              },
+            ],
+          };
+
+        const selector = args?.selector as string;
+        await page.dblclick(selector);
+        return {
+          content: [{ type: "text", text: `Double-clicked: ${selector}` }],
         };
       }
 
