@@ -42,7 +42,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: "launch",
       description:
-        "Launch separate Electron app for testing. Requires built app (bun run build). Uses .env.local",
+        "Launch Electron app for testing (builds and runs fresh instance)",
       inputSchema: {
         type: "object",
         properties: {
@@ -53,7 +53,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
           env: {
             type: "object",
-            description: "Additional environment variables",
+            description: "Environment variables to pass to the app",
+          },
+          headless: {
+            type: "boolean",
+            description:
+              "Run in headless mode (no visible window, for CI/automation)",
           },
         },
       },
@@ -353,9 +358,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         const appPath = (args?.appPath as string) || "./out/main/index.js";
         const env = (args?.env as Record<string, string>) || {};
+        const headless = (args?.headless as boolean) || false;
+
+        const launchArgs = ["--ozone-platform=x11", appPath];
+        if (headless) {
+          launchArgs.unshift("--headless=new", "--disable-gpu");
+        }
 
         electronApp = await _electron.launch({
-          args: ["--ozone-platform=x11", appPath],
+          args: launchArgs,
           env: { ...process.env, ...env, TEST_MODE: "true" },
         });
 
@@ -367,7 +378,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: "text",
-              text: `App launched. Window title: ${await page.title()}`,
+              text: `App launched${headless ? " (headless)" : ""}. Window title: ${await page.title()}`,
             },
           ],
         };

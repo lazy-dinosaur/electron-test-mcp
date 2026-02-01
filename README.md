@@ -104,6 +104,9 @@ Launch a fresh Electron app instance:
 
 ```
 launch({ appPath: "./out/main/index.js" })
+
+# With headless mode for CI
+launch({ appPath: "./out/main/index.js", headless: true })
 ```
 
 **Advantages:**
@@ -111,6 +114,39 @@ launch({ appPath: "./out/main/index.js" })
 - Clean state for each test
 - Access to main process via `evaluateMain`
 - Can pass custom environment variables
+- Supports headless mode for CI/automation
+
+## Headless Mode (CI/Automation)
+
+### Launch Mode
+
+Pass `headless: true` to run without a visible window:
+
+```
+launch({ appPath: "./out/main/index.js", headless: true })
+```
+
+### CDP Mode
+
+Start your Electron app with headless flags before connecting:
+
+```bash
+# Option 1: Electron headless flag (Electron 28+)
+electron your-app --headless=new --remote-debugging-port=9222
+
+# Option 2: xvfb (Linux) - virtual framebuffer
+xvfb-run electron your-app --remote-debugging-port=9222
+
+# Option 3: xvfb with specific display (CI environments)
+Xvfb :99 -screen 0 1920x1080x24 &
+DISPLAY=:99 electron your-app --remote-debugging-port=9222
+```
+
+Then connect normally:
+
+```
+connect({ port: 9222 })
+```
 
 ## Available Tools
 

@@ -104,6 +104,9 @@ connect({ port: 9222 })
 
 ```
 launch({ appPath: "./out/main/index.js" })
+
+# CI용 headless 모드
+launch({ appPath: "./out/main/index.js", headless: true })
 ```
 
 **장점:**
@@ -111,6 +114,39 @@ launch({ appPath: "./out/main/index.js" })
 - 각 테스트마다 깨끗한 상태
 - `evaluateMain`을 통한 메인 프로세스 접근
 - 커스텀 환경 변수 전달 가능
+- CI/자동화를 위한 headless 모드 지원
+
+## Headless 모드 (CI/자동화)
+
+### Launch 모드
+
+`headless: true`를 전달하면 창 없이 실행:
+
+```
+launch({ appPath: "./out/main/index.js", headless: true })
+```
+
+### CDP 모드
+
+연결 전에 Electron 앱을 headless 플래그와 함께 시작:
+
+```bash
+# 방법 1: Electron headless 플래그 (Electron 28+)
+electron your-app --headless=new --remote-debugging-port=9222
+
+# 방법 2: xvfb (Linux) - 가상 프레임버퍼
+xvfb-run electron your-app --remote-debugging-port=9222
+
+# 방법 3: xvfb + 특정 디스플레이 (CI 환경)
+Xvfb :99 -screen 0 1920x1080x24 &
+DISPLAY=:99 electron your-app --remote-debugging-port=9222
+```
+
+그 다음 평소대로 연결:
+
+```
+connect({ port: 9222 })
+```
 
 ## 사용 가능한 도구
 
