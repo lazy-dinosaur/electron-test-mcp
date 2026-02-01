@@ -25,12 +25,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lazydino/electron-test-mcp"
+    "url": "https://github.com/lazy-dinosaur/electron-test-mcp"
   },
   "bugs": {
-    "url": "https://github.com/lazydino/electron-test-mcp/issues"
+    "url": "https://github.com/lazy-dinosaur/electron-test-mcp/issues"
   },
-  "homepage": "https://github.com/lazydino/electron-test-mcp#readme",
+  "homepage": "https://github.com/lazy-dinosaur/electron-test-mcp#readme",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"
